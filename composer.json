@@ -1,0 +1,28 @@
+{
+    "name": "walletable/share",
+    "description": "Share funds among wallets at once.",
+    "type": "library",
+    "require": {
+        "walletable/walletable": "dev-main"
+    },
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Walletable\\Share\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ilesanmi Olawale Adedotun",
+            "email": "horlawaley001@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Walletable\\Share\\ShareServiceProvider"
+            ]
+        }
+    }
+}
