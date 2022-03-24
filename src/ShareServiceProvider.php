@@ -2,8 +2,11 @@
 
 namespace Walletable;
 
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use Walletable\Facades\Wallet;
+use Walletable\Share\Recipients;
+use Walletable\Share\Share;
 use Walletable\Transaction\TransferAction;
 
 class WalletableServiceProvider extends ServiceProvider
@@ -15,6 +18,7 @@ class WalletableServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        //
     }
 
     /**
@@ -24,6 +28,13 @@ class WalletableServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Config::get('walletable.models.wallet')::macro('share', function (Recipients $recipients, $remarks = null) {
+            /**
+             * @var \Walletable\Models\Wallet $this
+             */
+            return (new Share($this, $recipients, $remarks))->execute();
+        });
+
         Wallet::action('share', TransferAction::class);
     }
 }
