@@ -1,15 +1,15 @@
 <?php
 
-namespace Walletable;
+namespace Walletable\Share;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use Walletable\Facades\Wallet;
 use Walletable\Share\Recipients;
 use Walletable\Share\Share;
-use Walletable\Transaction\TransferAction;
+use Walletable\Share\ShareAction;
 
-class WalletableServiceProvider extends ServiceProvider
+class ShareServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
@@ -35,6 +35,6 @@ class WalletableServiceProvider extends ServiceProvider
             return (new Share($this, $recipients, $remarks))->execute();
         });
 
-        Wallet::action('share', TransferAction::class);
+        Wallet::action('share', ShareAction::class);
     }
 }

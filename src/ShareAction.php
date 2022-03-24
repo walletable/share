@@ -1,6 +1,6 @@
 <?php
 
-namespace Walletable\Transaction;
+namespace Walletable\Share;
 
 use Illuminate\Support\Str;
 use Walletable\Internals\Actions\ActionData;
