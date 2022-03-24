@@ -83,7 +83,8 @@ class Recipients
         $shared = \collect($amount->allocateTo(count($wallets)));
 
         return new static(...$shared->reduce(function ($recipients, $item, $key) use ($wallets) {
-            return $recipients[] = new Recipient($wallets[$key], $item);
+            $recipients[] = new Recipient($wallets[$key], $item);
+            return $recipients;
         }, []));
     }
 }
