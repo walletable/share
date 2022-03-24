@@ -96,7 +96,7 @@ class Share
 
             if ($this->debitSender()) {
                 $this->recipients->each(function (Recipient $recipient) {
-                    $transaction = $this->bag->new($this->receiver, [
+                    $transaction = $this->bag->new($recipient->wallet(), [
                         'type' => 'credit',
                         'session' => $this->session,
                         'remarks' => $this->remarks
