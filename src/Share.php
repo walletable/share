@@ -12,7 +12,7 @@ use Walletable\Internals\Lockers\LockerInterface;
 use Walletable\Transaction\TransactionBag;
 use Walletable\Models\Wallet;
 use Walletable\Money\Money;
-use Walletable\Share\Exceptions\IncompleteTransferException;
+use Walletable\Share\IncompleteTransferException;
 
 class Share
 {

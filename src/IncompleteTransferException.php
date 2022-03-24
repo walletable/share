@@ -1,6 +1,6 @@
 <?php
 
-namespace Walletable\Share\Exceptions;
+namespace Walletable\Share;
 
 use RuntimeException;
 use Walletable\Share\Share;
