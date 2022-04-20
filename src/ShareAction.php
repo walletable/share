@@ -90,7 +90,7 @@ class ShareAction implements ActionInterface
     /**
      * {@inheritdoc}
      */
-    public function supportortDebit(): bool
+    public function supportDebit(): bool
     {
         return false;
     }
@@ -99,7 +99,7 @@ class ShareAction implements ActionInterface
     /**
      * {@inheritdoc}
      */
-    public function supportortCredit(): bool
+    public function supportCredit(): bool
     {
         return false;
     }
