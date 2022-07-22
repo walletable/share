@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Walletable\Exceptions\IncompactibleWalletsException;
 use Walletable\Exceptions\InsufficientBalanceException;
-use Walletable\Facades\Wallet as Manager;
+use Walletable\Facades\Walletable;
 use Walletable\Internals\Actions\ActionData;
 use Walletable\Internals\Lockers\LockerInterface;
 use Walletable\Transaction\TransactionBag;
@@ -113,7 +113,7 @@ class Share
 
                 $this->successful = true;
 
-                Manager::applyAction('share', $this->bag, new ActionData(
+                Walletable::applyAction('share', $this->bag, new ActionData(
                     $this->sender,
                     $this->recipients
                 ));
@@ -195,6 +195,6 @@ class Share
         if ($this->locker) {
             return $this->locker;
         }
-        return $this->locker = Manager::locker(config('walletable.locker'));
+        return $this->locker = Walletable::locker(config('walletable.locker'));
     }
 }
