@@ -4,7 +4,7 @@ namespace Walletable\Share;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
-use Walletable\Facades\Wallet;
+use Walletable\Facades\Walletable;
 use Walletable\Share\Recipients;
 use Walletable\Share\Share;
 use Walletable\Share\ShareAction;
@@ -35,6 +35,6 @@ class ShareServiceProvider extends ServiceProvider
             return (new Share($this, $recipients, $remarks))->execute();
         });
 
-        Wallet::action('share', ShareAction::class);
+        Walletable::action('share', ShareAction::class);
     }
 }
