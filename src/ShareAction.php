@@ -22,7 +22,7 @@ class ShareAction implements ActionInterface
     /**
      * Resourse of each model using a custom closure
      *
-     * @var array
+     * @var array[string=>Closure]
      */
     protected static $eachRecipientUsing = [];
 
@@ -139,18 +139,18 @@ class ShareAction implements ActionInterface
      */
     public function methodResource(Transaction $transaction)
     {
-        if (isset($this->recipientResourcesCache[$transaction->id])) {
-            return $this->recipientResourcesCache[$transaction->id];
+        if (isset($this->recipientResourcesCache[(string)$transaction->id])) {
+            return $this->recipientResourcesCache[(string)$transaction->id];
         }
 
-        return $this->recipientResourcesCache[$transaction->id] = $this->recipientModelCollection($transaction)
-        ->map(function ($model) {
-            if (isset(static::$eachRecipientUsing[$model])) {
-                return static::$eachRecipientUsing[$model];
+        return $this->recipientResourcesCache[(string)$transaction->id] = $this->recipientModelCollection($transaction)
+        ->map(function ($model) use ($transaction) {
+            if (isset(static::$eachRecipientUsing[get_class($model)])) {
+                return static::$eachRecipientUsing[get_class($model)]->call($this, $model, $transaction);
             }
 
             return $model;
-        });
+        })->values();
     }
 
     /**
@@ -161,8 +161,8 @@ class ShareAction implements ActionInterface
      */
     protected function recipientModelCollection(Transaction $transaction)
     {
-        if (isset($this->recipientModelsCache[$transaction->id])) {
-            return $this->recipientModelsCache[$transaction->id];
+        if (isset($this->recipientModelsCache[(string)$transaction->id])) {
+            return $this->recipientModelsCache[(string)$transaction->id];
         }
 
         $group = \collect($transaction->meta('recipients'))->mapToGroups(function ($item) {
@@ -188,7 +188,7 @@ class ShareAction implements ActionInterface
                 });
         });
 
-        return $this->recipientModelsCache[$transaction->id] = $models;
+        return $this->recipientModelsCache[(string)$transaction->id] = $models;
     }
 
     /**
@@ -200,7 +200,7 @@ class ShareAction implements ActionInterface
      */
     public static function eachRecipientUsing(string $class, Closure $closure)
     {
-        if (is_a($class, Model::class)) {
+        if (is_a($class, Model::class, true)) {
             static::$eachRecipientUsing[$class] = $closure;
         }
     }
