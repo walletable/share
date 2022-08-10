@@ -2,6 +2,10 @@
 
 namespace Walletable\Share;
 
+use Closure;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Walletable\Internals\Actions\ActionData;
 use Walletable\Internals\Actions\ActionInterface;
@@ -11,6 +15,17 @@ use Walletable\Share\Recipient;
 
 class ShareAction implements ActionInterface
 {
+    protected $recipientModelsCache = [];
+
+    protected $recipientResourcesCache = [];
+
+    /**
+     * Resourse of each model using a custom closure
+     *
+     * @var array
+     */
+    protected static $eachRecipientUsing = [];
+
     /**
      * {@inheritdoc}
      */
@@ -95,12 +110,98 @@ class ShareAction implements ActionInterface
         return false;
     }
 
-
     /**
      * {@inheritdoc}
      */
     public function supportCredit(): bool
     {
         return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function reversable(Transaction $transaction): bool
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function reverse(Transaction $transaction, Transaction $new): ActionInterface
+    {
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function methodResource(Transaction $transaction)
+    {
+        if (isset($this->recipientResourcesCache[$transaction->id])) {
+            return $this->recipientResourcesCache[$transaction->id];
+        }
+
+        return $this->recipientResourcesCache[$transaction->id] = $this->recipientModelCollection($transaction)
+        ->map(function ($model) {
+            if (isset(static::$eachRecipientUsing[$model])) {
+                return static::$eachRecipientUsing[$model];
+            }
+
+            return $model;
+        });
+    }
+
+    /**
+     * Build model colection from polymorphic IDs
+     *
+     * @param Transaction $transaction
+     * @return Collection
+     */
+    protected function recipientModelCollection(Transaction $transaction)
+    {
+        if (isset($this->recipientModelsCache[$transaction->id])) {
+            return $this->recipientModelsCache[$transaction->id];
+        }
+
+        $group = \collect($transaction->meta('recipients'))->mapToGroups(function ($item) {
+            return [$item['type'] => $item['identifier']];
+        });
+
+        $models = \collect([]);
+
+        $group->each(function (Collection $ids, $key) use ($models) {
+            if (!($classExists = class_exists($key)) && !($morphClass = Relation::getMorphedModel($key))) {
+                return;
+            }
+
+            $class = $classExists ? $key : $morphClass;
+
+            $ids = $ids->toArray();
+
+            $keyName = (new $class())->getKeyName();
+
+            $class::query()->whereIn($keyName, $ids)->get()
+                ->each(function ($model) use ($key, $models) {
+                    $models[$model->getKey() . '_' . $key] = $model;
+                });
+        });
+
+        return $this->recipientModelsCache[$transaction->id] = $models;
+    }
+
+    /**
+     * Get the resourse of each model using a custom closure
+     *
+     * @param string $class
+     * @param Closure $closure
+     * @return void
+     */
+    public static function eachRecipientUsing(string $class, Closure $closure)
+    {
+        if (is_a($class, Model::class)) {
+            static::$eachRecipientUsing[$class] = $closure;
+        }
     }
 }
