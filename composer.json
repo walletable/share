@@ -3,7 +3,7 @@
     "description": "Share funds among wallets at once.",
     "type": "library",
     "require": {
-        "walletable/walletable": "^0.0.2"
+        "walletable/walletable": "*"
     },
     "license": "MIT",
     "minimum-stability": "dev",
